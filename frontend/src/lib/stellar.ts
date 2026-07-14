@@ -1,6 +1,6 @@
 import { Contract, TransactionBuilder, Networks, nativeToScVal, scValToNative, Account } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
-import { isConnected, getAddress, signTransaction } from "@stellar/freighter-api";
+import { isConnected, getAddress, signTransaction, requestAccess } from "@stellar/freighter-api";
 
 export const CONTRACT_ID = "CD7VI2LYVGCLMMRYXYR3RPD3Z4Y2L7DNMUZCUX2MFRK3E23OIL2EUPNG";
 export const RPC_URL = "https://soroban-testnet.stellar.org";
@@ -31,7 +31,7 @@ export interface AdvanceRequestWithId extends AdvanceRequest {
 }
 
 // Check Freighter Connection and Get Wallet Address
-export async function checkFreighter() {
+export async function checkFreighter(requestPermission: boolean = false) {
   if (typeof window !== "undefined") {
     let attempts = 0;
     while (attempts < 6) {
@@ -60,14 +60,14 @@ export async function checkFreighter() {
   }
 
   try {
-    const result = await getAddress();
+    const result = requestPermission ? await requestAccess() : await getAddress();
     if (result.error) {
-      console.warn("getAddress returned error:", result.error);
+      console.warn("Freighter connection returned error:", result.error);
       return { connected: false, publicKey: "", isInstalled: true, error: result.error };
     }
     return { connected: !!result.address, publicKey: result.address || "", isInstalled: true };
   } catch (e: any) {
-    console.error("getAddress failed:", e);
+    console.error("Freighter call failed:", e);
     return { connected: false, publicKey: "", isInstalled: true, error: e.message || e };
   }
 }

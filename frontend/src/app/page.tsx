@@ -169,7 +169,7 @@ export default function PayFlowDashboard() {
     setLoadingWallet(true);
     addLog("Requesting wallet connection via Freighter...");
     try {
-      const status = await checkFreighter();
+      const status = await checkFreighter(true);
       if (status.connected && status.publicKey) {
         setConnected(true);
         setPublicKey(status.publicKey);
